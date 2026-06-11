@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penjelajahan Interaktif Keraton</title>
+    <style>
+        /* Pilihan Warna Berdasarkan Ornamen Foto Keraton */
+        :root {
+            --primary-red: #8B2635;    /* Merah khas gamelan dan kayu gerbang */
+            --gold: #D4AF37;           /* Emas lambang kemegahan keraton */
+            --dark-green: #1E3F20;     /* Hijau pintu kayu abdi dalem */
+            --light-green: #A3D9C9;    /* Hijau toska muda pilar gazebo */
+            --cream: #FDFBF7;          /* Putih tulang/krem latar belakang dinding */
+            --dark: #222222;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--cream);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(rgba(139, 38, 53, 0.9), rgba(139, 38, 53, 0.9)), url('gambar4.jpg') center/cover;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+            border-bottom: 5px solid var(--gold);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        header p {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            color: var(--primary-red);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background-color: var(--gold);
+            margin: 10px auto 0;
+        }
+
+        /* Grid Eksplorasi */
+        .grid-jelajah {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border-top: 4px solid var(--dark-green);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-content h3 {
+            color: var(--primary-red);
+            margin-bottom: 10px;
+        }
+
+        /* Area Quiz Interaktif */
+        .quiz-container {
+            background: white;
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .quiz-header {
+            background-color: var(--primary-red);
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .options-list {
+            list-style: none;
+        }
+
+        .option-item {
+            background-color: var(--cream);
+            border: 1px solid #ddd;
+            padding: 12px 20px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item:hover {
+            background-color: var(--light-green);
+            border-color: var(--dark-green);
+        }
+
+        .option-item.correct {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-item.wrong {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24;
+        }
+
+        .btn-next {
+            display: block;
+            width: 100%;
+            background-color: var(--dark-green);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .btn-next:hover {
+            background-color: #142c16;
+        }
+
+        /* Modal Preview Gambar */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 80vh;
+            border: 4px solid var(--gold);
+            border-radius: 4px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        footer {
+            background-color: var(--dark);
+            color: #888;
+            text-align: center;
+            padding: 20px;
+            margin-top: 60px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>PENJELAJAHAN INTERAKTIF KERATON</h1>
+        <p>Mengenal Keindahan Seni, Sejarah, dan Arsitektur Klasik Nusantara</p>
+    </header>
+
+    <div class="container">
+        
+        <h2 class="section-title">Eksplorasi Area Keraton</h2>
+        <div class="grid-jelajah">
+            
+            <div class="card">
+                <img src="gambar1.jpg" alt="Gamelan Pusaka" onclick="openModal(this.src)">
+                <div class="card-content">
+                    <h3>1. Koridor Gamelan Pusaka</h3>
+                    <p>Perangkat musik tradisional Jawa (Gamelan) yang dibalut kain pelindung jingga-merah di dalam kompleks keraton.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="gambar2.jpeg" alt="Detail Gapura Atas" onclick="openModal(this.src)">
+                <div class="card-content">
+                    <h3>2. Simbol Atas Kori</h3>
+                    <p>Ukiran wajah pelindung, lambang kerajaan, lambang burung garuda, serta pahatan angka tahun pemugaran 1928.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="gambar3.jpg" alt="Pintu Abdi Dalem" onclick="openModal(this.src)">
+                <div class="card-content">
+                    <h3>3. Selasar Hunian Abdi Dalem</h3>
+                    <p>Pintu-pintu kayu hijau tua bergaya simetris, berjejer rapi di area larangan memotret wajah penghuninya secara langsung.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="gambar4.jpg" alt="Kori Utama" onclick="openModal(this.src)">
+                <div class="card-content">
+                    <h3>4. Gerbang Kori Brojonolo</h3>
+                    <p>Pintu gerbang kokoh putih megah perpaduan arsitektur Jawa dan Eropa, dijaga sepasang patung Dwarapala besar.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="gambar5.jpg" alt="Bangsal Terbuka" onclick="openModal(this.src)">
+                <div class="card-content">
+                    <h3>5. Paviliun Terbuka (Pringgitan)</h3>
+                    <p>Halaman dalam dengan paviliun berlantai marmer, ditopang pilar besi hijau toska gelap dan dihiasi pot porselen antik biru-putih.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="gambar6.jpg" alt="Gazebo Musik" onclick="openModal(this.src)">
+                <div class="card-content">
+                    <h3>6. Bangsal Musik Segi Delapan</h3>
+                    <p>Bangunan unik panggung pertunjukan beratap segi delapan yang dihiasi kaca patri berwarna bermotif instrumen musik barat.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <h2 class="section-title">Mini Quiz Penjelajahan</h2>
+        <div class="quiz-container">
+            <div class="quiz-header" id="quiz-question">
+                Memuat pertanyaan...
+            </div>
+            <ul class="options-list" id="options-container">
+                </ul>
+            <button class="btn-next" id="btn-next" style="display: none;" onclick="nextQuestion()">Lanjut ke Pertanyaan Berikutnya</button>
+        </div>
+
+    </div>
+
+    <div class="modal" id="myModal">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="imgModal">
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Penjelajahan Keraton - Aplikasi Edukasi Budaya Interaktif.</p>
+    </footer>
+
+    <script>
+        // --- LOGIKA POPUP GAMBAR ---
+        function openModal(src) {
+            document.getElementById('myModal').style.display = "flex";
+            document.getElementById('imgModal').src = src;
+        }
+        function closeModal() {
+            document.getElementById('myModal').style.display = "none";
+        }
+
+        // --- DATA QUIZ INTERAKTIF ---
+        const quizData = [
+            {
+                question: "Berdasarkan tulisan emas yang terpahat di atas pintu gerbang (Gambar 2 & 4), tahun berapakah yang tertera di sana?",
+                options: ["Tahun 1828", "Tahun 1928", "Tahun 1945", "Tahun 1755"],
+                correct: 1
+            },
+            {
+                question: "Pilar-pilar besi penyangga pada bangunan paviliun terbuka (Gambar 5) dilapisi oleh warna apa?",
+                options: ["Merah Hati", "Kuning Keemasan", "Hijau Tua / Toska", "Putih Bersih"],
+                correct: 2
+            },
+            {
+                question: "Pada langit-langit/kaca patri bangunan segi delapan (Gambar 6), jenis motif gambar apa yang mendominasi?",
+                options: ["Wayang Kulit", "Alat Musik Barat (Saxophone, Biola, dll)", "Bunga Mawar", "Hewan Mitologi Naga"],
+                correct: 1
+            },
+            {
+                question: "Dua patung raksasa pemegang pemukul yang menjaga kanan-kiri gerbang putih utama disebut sebagai patung...",
+                options: ["Dwarapala", "Garuda", "Ganesha", "Hanoman"],
+                correct: 0
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let hasAnswered = false;
+
+        const questionElement = document.getElementById('quiz-question');
+        const optionsContainer = document.getElementById('options-container');
+        const nextButton = document.getElementById('btn-next');
+
+        function loadQuestion() {
+            hasAnswered = false;
+            nextButton.style.display = "none";
+            optionsContainer.innerHTML = "";
+            
+            let currentQuestion = quizData[currentQuestionIndex];
+            questionElement.innerText = `Pertanyaan ${currentQuestionIndex + 1}: ${currentQuestion.question}`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.classList.add('option-item');
+                li.innerText = option;
+                li.onclick = () => selectOption(li, index);
+                optionsContainer.appendChild(li);
+            });
+        }
+
+        function selectOption(selectedLi, selectedIndex) {
+            if (hasAnswered) return;
+            hasAnswered = true;
+
+            let correctAnswerIndex = quizData[currentQuestionIndex].correct;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctAnswerIndex) {
+                selectedLi.classList.add('correct');
+            } else {
+                selectedLi.classList.add('wrong');
+                allOptions[correctAnswerIndex].classList.add('correct'); // Tunjukkan yang benar
+            }
+
+            nextButton.style.display = "block";
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextButton.innerText = "Selesai! Klik untuk Mengulangi Quiz";
+            } else {
+                nextButton.innerText = "Pertanyaan Selanjutnya";
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                currentQuestionIndex = 0;
+                loadQuestion();
+            }
+        }
+
+        // Mulai quiz saat halaman dimuat pertama kali
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
